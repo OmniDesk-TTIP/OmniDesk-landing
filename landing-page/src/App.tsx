@@ -1,7 +1,11 @@
+import Hero from './components/hero/hero.tsx'
+
 function App() {
 
-  return ("hola mundo")
-    
+  return (
+    <Hero />
+  )
+
 }
 
 export default App

@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "landing-dev", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev", "--prefix", "landing-page"], "port": 5173 }
+  ]
+}
