@@ -6,15 +6,21 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
 import hotelFacade from '../../assets/cube-images/hotel-facade.webp'
 import hotelLobbyReception from '../../assets/cube-images/hotel-lobby-reception.webp'
-import hotelBedroom from '../../assets/cube-images/hotel-bedroom.webp'
+import roomDeluxeQueen from '../../assets/cube-images/room-deluxe-queen-square.webp'
 import hotelRestaurant from '../../assets/cube-images/hotel-restaurant.webp'
 import hotelPoolBar from '../../assets/cube-images/hotel-pool-bar.webp'
 import hotelSpa from '../../assets/cube-images/hotel-spa.webp'
-import { CUBE_FACES, createCubePose, type CubeFace, type CubePose } from './cube-pose.ts'
+import {
+  CUBE_COVER_MARGIN,
+  CUBE_FACES,
+  createCubePose,
+  type CubeFace,
+  type CubePose,
+} from './cube-pose.ts'
 
 const FACE_IMAGES: Record<CubeFace, string> = {
   lobby: hotelLobbyReception,
-  bedroom: hotelBedroom,
+  bedroom: roomDeluxeQueen,
   restaurant: hotelRestaurant,
   pool: hotelPoolBar,
   facade: hotelFacade,
@@ -161,6 +167,7 @@ function Cube({
       notifyIntroStart()
     }
 
+    let coverScale = 1
     const resize = () => {
       if (renderer.xr.isPresenting) return
       const { clientWidth: width, clientHeight: height } = container
@@ -168,7 +175,14 @@ function Cube({
       camera.aspect = width / height
       camera.updateProjectionMatrix()
       renderer.setSize(width, height)
-      cube.scale.setScalar(Math.min(1, getVisibleHeight() * camera.aspect * 0.42))
+
+      const fitScale = Math.min(1, getVisibleHeight() * camera.aspect * 0.42)
+      cube.scale.setScalar(fitScale)
+
+      const viewSlope = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))
+      const widest = Math.max(camera.aspect, 1)
+      const faceSize = (viewSlope * CAMERA_DISTANCE * widest) / (1 + (viewSlope * widest) / 2)
+      coverScale = (faceSize * CUBE_COVER_MARGIN) / fitScale
     }
     resize()
     const resizeObserver = new ResizeObserver(resize)
@@ -215,14 +229,19 @@ function Cube({
 
       const elapsed = timer.getElapsed()
       faceQuaternion.slerp(FACE_ROTATIONS[pose.face], 1 - Math.exp(-delta * 5))
-      showcaseTilt.set(0.2 + Math.sin(elapsed * 0.7) * 0.04, -0.45 + Math.sin(elapsed * 0.5) * 0.06, 0)
+      const tilt = 1 - pose.expand
+      showcaseTilt.set(
+        (0.2 + Math.sin(elapsed * 0.7) * 0.04) * tilt,
+        (-0.45 + Math.sin(elapsed * 0.5) * 0.06) * tilt,
+        0,
+      )
       showcaseQuaternion.setFromEuler(showcaseTilt).multiply(faceQuaternion)
       cube.quaternion.slerpQuaternions(spinQuaternion, showcaseQuaternion, pose.focus)
 
       const visibleHeight = getVisibleHeight()
       poseGroup.position.x = pose.x * visibleHeight * camera.aspect
       poseGroup.position.y = pose.y * visibleHeight
-      poseGroup.scale.setScalar(pose.scale)
+      poseGroup.scale.setScalar(THREE.MathUtils.lerp(pose.scale, coverScale, pose.expand ** 2))
       cubeGroup.position.y = introOffset.y
 
       renderer.render(scene, camera)
