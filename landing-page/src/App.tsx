@@ -1,9 +1,9 @@
-import Hero from './components/hero/hero.tsx'
+import Landing from './components/landing/landing.tsx'
 
 function App() {
 
   return (
-    <Hero />
+    <Landing />
   )
 
 }

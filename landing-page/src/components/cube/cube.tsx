@@ -9,16 +9,32 @@ import hotelLobbyReception from '../../assets/cube-images/hotel-lobby-reception.
 import hotelBedroom from '../../assets/cube-images/hotel-bedroom.webp'
 import hotelRestaurant from '../../assets/cube-images/hotel-restaurant.webp'
 import hotelPoolBar from '../../assets/cube-images/hotel-pool-bar.webp'
-import hotelCourtyardLounge from '../../assets/cube-images/hotel-courtyard-lounge.webp'
+import hotelSpa from '../../assets/cube-images/hotel-spa.webp'
+import { CUBE_FACES, createCubePose, type CubeFace, type CubePose } from './cube-pose.ts'
 
-const FACE_IMAGES = [
-  hotelLobbyReception,
-  hotelBedroom,
-  hotelRestaurant,
-  hotelPoolBar,
-  hotelFacade,
-  hotelCourtyardLounge,
-]
+const FACE_IMAGES: Record<CubeFace, string> = {
+  lobby: hotelLobbyReception,
+  bedroom: hotelBedroom,
+  restaurant: hotelRestaurant,
+  pool: hotelPoolBar,
+  facade: hotelFacade,
+  spa: hotelSpa,
+}
+
+const faceRotation = (x: number, y: number) =>
+  new THREE.Quaternion().setFromEuler(new THREE.Euler(x, y, 0))
+
+const FACE_ROTATIONS: Record<CubeFace, THREE.Quaternion> = {
+  lobby: faceRotation(0, -Math.PI / 2),
+  bedroom: faceRotation(0, Math.PI / 2),
+  restaurant: faceRotation(Math.PI / 2, 0),
+  pool: faceRotation(-Math.PI / 2, 0),
+  facade: faceRotation(0, 0),
+  spa: faceRotation(0, Math.PI),
+}
+
+const CAMERA_DISTANCE = 3
+const DEFAULT_POSE = createCubePose()
 
 type CubeFinish = 'glass' | 'metal'
 
@@ -49,10 +65,17 @@ type CubeProps = {
   enableAR?: boolean
   finish?: CubeFinish
   className?: string
+  pose?: CubePose
   onIntroStart?: () => void
 }
 
-function Cube({ enableAR = false, finish = 'glass', className, onIntroStart }: CubeProps) {
+function Cube({
+  enableAR = false,
+  finish = 'glass',
+  className,
+  pose = DEFAULT_POSE,
+  onIntroStart,
+}: CubeProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const notifyIntroStart = useEffectEvent(() => onIntroStart?.())
 
@@ -93,8 +116,8 @@ function Cube({ enableAR = false, finish = 'glass', className, onIntroStart }: C
     const loadingManager = new THREE.LoadingManager()
     const textureLoader = new THREE.TextureLoader(loadingManager)
     const maxAnisotropy = renderer.capabilities.getMaxAnisotropy()
-    const faceTextures = FACE_IMAGES.map((src) => {
-      const texture = textureLoader.load(src)
+    const faceTextures = CUBE_FACES.map((face) => {
+      const texture = textureLoader.load(FACE_IMAGES[face])
       texture.colorSpace = THREE.SRGBColorSpace
       texture.anisotropy = maxAnisotropy
       return texture
@@ -105,28 +128,21 @@ function Cube({ enableAR = false, finish = 'glass', className, onIntroStart }: C
     const cube = new THREE.Mesh(boxGeometry, faceMaterials)
     const cubeGroup = new THREE.Group()
     cubeGroup.add(cube)
+    cubeGroup.scale.setScalar(0.6)
+    const poseGroup = new THREE.Group()
+    poseGroup.add(cubeGroup)
+    poseGroup.position.z = -CAMERA_DISTANCE
+    poseGroup.visible = false
+    scene.add(poseGroup)
 
     const getVisibleHeight = () =>
-      2 * -cubeGroup.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))
+      2 * CAMERA_DISTANCE * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))
 
-    const getViewportCenterY = () => {
-      const rect = container.getBoundingClientRect()
-      if (rect.height === 0) return 0
-      const containerTop = rect.top + window.scrollY
-      const centerInContainer = THREE.MathUtils.clamp(window.innerHeight / 2 - containerTop, 0, rect.height)
-      return (0.5 - centerInContainer / rect.height) * getVisibleHeight()
-    }
-
-    cubeGroup.position.set(0, 0, -3)
-    cubeGroup.scale.setScalar(0.6)
-    cubeGroup.visible = false
-    scene.add(cubeGroup)
-
-    let viewportCenterY = getViewportCenterY()
-    const updateViewportCenter = () => {
-      viewportCenterY = getViewportCenterY()
-    }
-    window.addEventListener('resize', updateViewportCenter)
+    const spin = new THREE.Euler()
+    const spinQuaternion = new THREE.Quaternion()
+    const faceQuaternion = FACE_ROTATIONS[pose.face].clone()
+    const showcaseTilt = new THREE.Euler()
+    const showcaseQuaternion = new THREE.Quaternion()
 
     const introOffset = { y: -3.5 }
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -140,7 +156,7 @@ function Cube({ enableAR = false, finish = 'glass', className, onIntroStart }: C
       .from(cubeGroup.rotation, { y: -Math.PI }, 0)
 
     loadingManager.onLoad = () => {
-      cubeGroup.visible = true
+      poseGroup.visible = true
       intro.play()
       notifyIntroStart()
     }
@@ -152,7 +168,6 @@ function Cube({ enableAR = false, finish = 'glass', className, onIntroStart }: C
       camera.aspect = width / height
       camera.updateProjectionMatrix()
       renderer.setSize(width, height)
-      updateViewportCenter()
       cube.scale.setScalar(Math.min(1, getVisibleHeight() * camera.aspect * 0.42))
     }
     resize()
@@ -194,9 +209,21 @@ function Cube({ enableAR = false, finish = 'glass', className, onIntroStart }: C
 
       if (enableAR) setCameraTexture()
 
-      cube.rotation.x += delta * 0.3
-      cube.rotation.y += delta * 0.3
-      cubeGroup.position.y = viewportCenterY + introOffset.y
+      spin.x += delta * 0.3
+      spin.y += delta * 0.3
+      spinQuaternion.setFromEuler(spin)
+
+      const elapsed = timer.getElapsed()
+      faceQuaternion.slerp(FACE_ROTATIONS[pose.face], 1 - Math.exp(-delta * 5))
+      showcaseTilt.set(0.2 + Math.sin(elapsed * 0.7) * 0.04, -0.45 + Math.sin(elapsed * 0.5) * 0.06, 0)
+      showcaseQuaternion.setFromEuler(showcaseTilt).multiply(faceQuaternion)
+      cube.quaternion.slerpQuaternions(spinQuaternion, showcaseQuaternion, pose.focus)
+
+      const visibleHeight = getVisibleHeight()
+      poseGroup.position.x = pose.x * visibleHeight * camera.aspect
+      poseGroup.position.y = pose.y * visibleHeight
+      poseGroup.scale.setScalar(pose.scale)
+      cubeGroup.position.y = introOffset.y
 
       renderer.render(scene, camera)
     }
@@ -206,7 +233,6 @@ function Cube({ enableAR = false, finish = 'glass', className, onIntroStart }: C
       renderer.setAnimationLoop(null)
       intro.kill()
       resizeObserver.disconnect()
-      window.removeEventListener('resize', updateViewportCenter)
       timer.disconnect()
       void renderer.xr.getSession()?.end()
       arButton?.remove()
@@ -217,7 +243,7 @@ function Cube({ enableAR = false, finish = 'glass', className, onIntroStart }: C
       renderer.dispose()
       renderer.domElement.remove()
     }
-  }, [enableAR, finish])
+  }, [enableAR, finish, pose])
 
   return (
     <div
