@@ -1,0 +1,143 @@
+.spaces {
+  position: relative;
+  padding: 0 clamp(16px, 7vw, 120px) 30vh;
+}
+
+.spaces__header,
+.spaces__list {
+  max-width: min(42vw, 560px);
+}
+
+.spaces__header {
+  padding-top: 18vh;
+  min-height: 70vh;
+}
+
+.spaces__eyebrow {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.spaces__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 4.6vw, 4.75rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.spaces__title em {
+  font-style: italic;
+  color: var(--color-accent);
+}
+
+.spaces__intro {
+  margin: 1.75rem 0 0;
+  max-width: 38ch;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-muted);
+}
+
+.spaces__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spaces__item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 80vh;
+  opacity: 0.22;
+  transform: translateX(-12px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+.spaces__item--active {
+  opacity: 1;
+  transform: none;
+}
+
+.spaces__number {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--color-accent);
+}
+
+.spaces__name {
+  margin: 0.75rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 3.6vw, 3.75rem);
+  font-weight: 300;
+  line-height: 1;
+}
+
+.spaces__description {
+  margin: 1.25rem 0 0;
+  max-width: 40ch;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-muted);
+}
+
+.spaces__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spaces__details li {
+  padding: 0.4rem 0.85rem;
+  border: 1px solid rgb(200 162 122 / 0.3);
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--color-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spaces__item {
+    transition: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .spaces__header,
+  .spaces__list {
+    max-width: none;
+  }
+
+  .spaces__header {
+    padding-top: 52vh;
+    min-height: 0;
+    padding-bottom: 10vh;
+  }
+
+  .spaces__item {
+    justify-content: flex-start;
+    min-height: 65vh;
+    transform: translateY(12px);
+  }
+
+  .spaces__item--active {
+    transform: none;
+  }
+}

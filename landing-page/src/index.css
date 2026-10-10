@@ -1,0 +1,25 @@
+:root {
+  --color-bg: #14110f;
+  --color-text: #ece3d7;
+  --color-muted: #a8998a;
+  --color-accent: #c8a27a;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Manrope', system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
