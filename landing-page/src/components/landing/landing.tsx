@@ -72,7 +72,7 @@ function Landing() {
           defaults: { ease: 'none' },
           scrollTrigger: { trigger: '.spaces', start: 'top bottom', end: 'top top', scrub: 1 },
         })
-        .to(pose, isDesktop ? { x: 0.24, scale: 0.95, focus: 1 } : { y: 0.26, scale: 0.8, focus: 1 }, 0)
+        .to(pose, isDesktop ? { x: 0.24, scale: 1.5, focus: 1 } : { y: 0.26, scale: 0.8, focus: 1 }, 0)
         .to('.landing__glow-track', isDesktop ? { x: '24vw' } : { y: '-26vh' }, 0)
         .to('.hero__content', { opacity: 0 }, 0)
 
