@@ -1,14 +1,14 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import Cube from '../cube/cube.tsx'
-import { CUBE_COVER_MARGIN, createCubePose } from '../cube/cube-pose.ts'
-import Hero from '../hero/hero.tsx'
-import Spaces from '../spaces/spaces.tsx'
-import { SPACES } from '../spaces/spaces-data.ts'
-import Rooms from '../rooms/rooms.tsx'
-import { ROOMS } from '../rooms/rooms-data.ts'
-import './landing.css'
+import Cube from '../../components/cube/cube.tsx'
+import { CUBE_COVER_MARGIN, createCubePose } from '../../components/cube/cube-pose.ts'
+import Hero from '../../components/hero/hero.tsx'
+import Spaces from '../../components/spaces/spaces.tsx'
+import { SPACES } from '../../components/spaces/spaces-data.ts'
+import Rooms from '../../components/rooms/rooms.tsx'
+import { ROOMS } from '../../components/rooms/rooms-data.ts'
+import './home.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -24,7 +24,7 @@ const getRoomZoomToMatchCube = (width: number, height: number) => {
   return shownByGallery / shownByCube
 }
 
-function Landing() {
+function Home() {
   const rootRef = useRef<HTMLDivElement>(null)
   const introRef = useRef<gsap.core.Timeline>(null)
   const activeRoomRef = useRef(0)
@@ -36,10 +36,10 @@ function Landing() {
     const ctx = gsap.context(() => {
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-      gsap.set('.landing__glow', { opacity: 0, scale: 0.4 })
+      gsap.set('.home__glow', { opacity: 0, scale: 0.4 })
       gsap.set('.hero__reveal', { opacity: 0, y: 32 })
 
-      const breathing = gsap.to('.landing__glow', {
+      const breathing = gsap.to('.home__glow', {
         paused: true,
         scale: 1.08,
         opacity: 0.85,
@@ -52,7 +52,7 @@ function Landing() {
 
       introRef.current = gsap
         .timeline({ paused: true, defaults: { ease: 'power3.out' } })
-        .to('.landing__glow', { opacity: 1, scale: 1, duration: prefersReducedMotion ? 0 : 3.5 }, 0.4)
+        .to('.home__glow', { opacity: 1, scale: 1, duration: prefersReducedMotion ? 0 : 3.5 }, 0.4)
         .to(
           '.hero__reveal',
           { opacity: 1, y: 0, duration: prefersReducedMotion ? 0 : 1.6, stagger: 0.18 },
@@ -73,7 +73,7 @@ function Landing() {
           scrollTrigger: { trigger: '.spaces', start: 'top bottom', end: 'top top', scrub: 1 },
         })
         .to(pose, isDesktop ? { x: 0.24, scale: 1.5, focus: 1 } : { y: 0.26, scale: 0.8, focus: 1 }, 0)
-        .to('.landing__glow-track', isDesktop ? { x: '24vw' } : { y: '-26vh' }, 0)
+        .to('.home__glow-track', isDesktop ? { x: '24vw' } : { y: '-26vh' }, 0)
         .to('.hero__content', { opacity: 0 }, 0)
 
       const activationLine = isDesktop ? '60%' : '80%'
@@ -104,7 +104,7 @@ function Landing() {
           },
         })
         .to(pose, { x: 0, y: 0, expand: 1 }, 0)
-        .to('.landing__layer--back', { autoAlpha: 0 }, 0)
+        .to('.home__layer--back', { autoAlpha: 0 }, 0)
 
       const steps = ROOMS.length - 1
       const gallery = document.querySelector<HTMLElement>('.rooms__gallery')!
@@ -141,7 +141,7 @@ function Landing() {
       const firstSlide = '.rooms__slide:first-child'
       roomsTimeline
         .fromTo('.rooms__gallery', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.15 })
-        .set('.landing__layer--front', { autoAlpha: 0 })
+        .set('.home__layer--front', { autoAlpha: 0 })
         .fromTo(
           `${firstSlide} .rooms__media`,
           { scale: () => getRoomZoomToMatchCube(gallery.offsetWidth, gallery.offsetHeight) },
@@ -172,26 +172,26 @@ function Landing() {
   }, [pose])
 
   return (
-    <div ref={rootRef} className="landing">
-      <div className="landing__layer landing__layer--back" aria-hidden="true">
-        <div className="landing__glow-track">
-          <div className="landing__glow" />
+    <div ref={rootRef} className="home">
+      <div className="home__layer home__layer--back" aria-hidden="true">
+        <div className="home__glow-track">
+          <div className="home__glow" />
         </div>
       </div>
 
-      <div className="landing__layer landing__layer--front">
+      <div className="home__layer home__layer--front">
         <Cube pose={pose} onIntroStart={() => introRef.current?.play()} />
       </div>
 
-      <main className="landing__content">
+      <main className="home__content">
         <Hero />
         <Spaces activeIndex={activeSpace} />
         <Rooms activeIndex={activeRoom} />
       </main>
 
-      <div className="landing__grain" aria-hidden="true" />
+      <div className="home__grain" aria-hidden="true" />
     </div>
   )
 }
 
-export default Landing
+export default Home

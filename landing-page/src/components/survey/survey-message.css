@@ -1,0 +1,29 @@
+.survey-message {
+  padding-top: 8vh;
+  text-align: center;
+}
+
+.survey-message__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.125rem, 9vw, 3rem);
+  font-weight: 300;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.survey-message__title:focus {
+  outline: none;
+}
+
+.survey-message__body p {
+  margin: 1rem 0 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--color-muted);
+}
+
+.survey-message__action {
+  margin-top: 2rem;
+}

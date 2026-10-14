@@ -1,10 +1,10 @@
-.landing {
-  --landing-glow-size: min(115vw, 130vh);
+.home {
+  --home-glow-size: min(115vw, 130vh);
 
   position: relative;
 }
 
-.landing__layer {
+.home__layer {
   position: sticky;
   top: 0;
   height: 100vh;
@@ -13,30 +13,30 @@
   pointer-events: none;
 }
 
-.landing__layer--back {
+.home__layer--back {
   z-index: 0;
 }
 
-.landing__layer--front {
+.home__layer--front {
   z-index: 2;
 }
 
-.landing__content {
+.home__content {
   position: relative;
 }
 
-.landing__glow-track {
+.home__glow-track {
   position: absolute;
   inset: 0;
   will-change: transform;
 }
 
-.landing__glow {
+.home__glow {
   position: absolute;
-  top: calc(50% - var(--landing-glow-size) / 2);
-  left: calc(50% - var(--landing-glow-size) / 2);
-  width: var(--landing-glow-size);
-  height: var(--landing-glow-size);
+  top: calc(50% - var(--home-glow-size) / 2);
+  left: calc(50% - var(--home-glow-size) / 2);
+  width: var(--home-glow-size);
+  height: var(--home-glow-size);
   border-radius: 50%;
   background: radial-gradient(
     circle,
@@ -48,7 +48,7 @@
   will-change: transform, opacity;
 }
 
-.landing__grain {
+.home__grain {
   position: fixed;
   z-index: 4;
   inset: 0;

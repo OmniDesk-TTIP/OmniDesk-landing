@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Encuesta: no indexar y no filtrar el token en el Referer. Va antes de las fuentes para que aplique a esos pedidos. -->
+    <script>
+      if (/^\/encuesta\/[^/]+\/?$/.test(location.pathname)) {
+        for (const [name, content] of [['robots', 'noindex'], ['referrer', 'no-referrer']]) {
+          const meta = document.createElement('meta')
+          meta.name = name
+          meta.content = content
+          document.head.append(meta)
+        }
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
