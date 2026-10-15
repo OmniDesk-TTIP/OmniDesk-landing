@@ -1,4 +1,4 @@
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/+$/, '')
+import { API_URL } from './api.ts'
 
 const INVALID_FALLBACK_MESSAGE = 'Revisá las calificaciones e intentá de nuevo.'
 

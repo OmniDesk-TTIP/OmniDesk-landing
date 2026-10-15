@@ -1,0 +1,41 @@
+.rating-stars {
+  --rating-stars-size: 18px;
+
+  display: inline-flex;
+  gap: 3px;
+  vertical-align: middle;
+}
+
+.rating-stars--large {
+  --rating-stars-size: 26px;
+
+  gap: 4px;
+}
+
+.rating-stars__star {
+  position: relative;
+  display: block;
+  width: var(--rating-stars-size);
+  height: var(--rating-stars-size);
+}
+
+.rating-stars__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  overflow: hidden;
+}
+
+.rating-stars__icon {
+  display: block;
+  width: var(--rating-stars-size);
+  height: var(--rating-stars-size);
+  fill: transparent;
+  stroke: var(--color-muted);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.rating-stars__icon--filled {
+  fill: var(--color-accent);
+  stroke: var(--color-accent);
+}

@@ -8,6 +8,7 @@ import Spaces from '../../components/spaces/spaces.tsx'
 import { SPACES } from '../../components/spaces/spaces-data.ts'
 import Rooms from '../../components/rooms/rooms.tsx'
 import { ROOMS } from '../../components/rooms/rooms-data.ts'
+import Reviews from '../../components/reviews/reviews.tsx'
 import './home.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -187,6 +188,7 @@ function Home() {
         <Hero />
         <Spaces activeIndex={activeSpace} />
         <Rooms activeIndex={activeRoom} />
+        <Reviews />
       </main>
 
       <div className="home__grain" aria-hidden="true" />

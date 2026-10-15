@@ -8,7 +8,7 @@ import {
   type SurveyData,
   type SurveyAnswers,
   type SurveyResult,
-} from '../../components/survey/survey-api.ts'
+} from '../../services/survey-api.ts'
 import './survey.css'
 
 const PAGE_TITLE = 'Encuesta de satisfacción · Alma Hotel'

@@ -1,7 +1,7 @@
 import { useId, useRef, useState, type Dispatch, type FormEvent, type SetStateAction } from 'react'
 import { flushSync } from 'react-dom'
 import StarRating from './star-rating.tsx'
-import { OVERALL_RATING_FIELD, getRatingFields, type SurveyData } from './survey-api.ts'
+import { OVERALL_RATING_FIELD, getRatingFields, type SurveyData } from '../../services/survey-api.ts'
 import './survey-button.css'
 import './survey-form.css'
 
