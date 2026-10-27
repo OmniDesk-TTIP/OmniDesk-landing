@@ -139,6 +139,75 @@
   outline-offset: 3px;
 }
 
+.rooms__notice {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 300;
+  line-height: 1.05;
+}
+
+.rooms__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: min(420px, calc(100vw - 32px));
+}
+
+.rooms__bone {
+  display: block;
+  height: 1.1rem;
+  border-radius: 6px;
+  background: linear-gradient(
+      90deg,
+      rgb(236 227 215 / 0.12) 0%,
+      rgb(236 227 215 / 0.24) 50%,
+      rgb(236 227 215 / 0.12) 100%
+    )
+    0 0 / 200% 100%;
+  animation: rooms-shimmer 1.6s ease-in-out infinite;
+}
+
+.rooms__bone--name {
+  width: 70%;
+  height: clamp(2.5rem, 5vw, 4rem);
+  margin-bottom: 0.5rem;
+}
+
+.rooms__bone--short {
+  width: 60%;
+}
+
+.rooms__bone--specs {
+  width: 50%;
+  height: 1.9rem;
+  margin-top: 0.5rem;
+  border-radius: 999px;
+}
+
+.rooms__bone--price {
+  width: 40%;
+  height: 2rem;
+  margin-top: 1rem;
+}
+
+@keyframes rooms-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rooms__bone {
+    animation: none;
+  }
+}
+
 .rooms__hud {
   position: absolute;
   z-index: 1;

@@ -4,57 +4,67 @@ import twin1200 from '../../assets/rooms/room-twin-1200.webp'
 import twin2400 from '../../assets/rooms/room-twin-2400.webp'
 import terraceSuite1200 from '../../assets/rooms/room-terrace-suite-1200.webp'
 import terraceSuite2400 from '../../assets/rooms/room-terrace-suite-2400.webp'
+import type { PublicRoom } from '../../services/rooms-api.ts'
 
-export type Room = {
-  id: string
-  name: string
-  description: string
-  image: { small: string; large: string; alt: string; aspect: number }
-  specs: string[]
-  pricePerNight: number
+export type RoomImage = { small: string; large: string; alt: string; aspect: number }
+
+export type Room = PublicRoom & {
+  description?: string
+  image: RoomImage
+  features: string[]
 }
 
-export const ROOMS: Room[] = [
-  {
-    id: 'deluxe-queen',
-    name: 'Deluxe Queen',
+type RoomContent = Pick<Room, 'description' | 'image' | 'features'>
+
+// Same picture as the cube's bedroom face, so the cube → gallery crossfade stays seamless.
+export const DEFAULT_ROOM_IMAGE: RoomImage = {
+  small: deluxeQueen1200,
+  large: deluxeQueen2400,
+  aspect: 2816 / 1536,
+  alt: 'Habitación con cama grande, sillón de lectura y ventanal con vista a la ciudad',
+}
+
+// Content the API doesn't provide, keyed by the normalized room type name.
+const ROOM_CONTENT: Record<string, RoomContent> = {
+  individual: {
     description:
-      'Ventanal de piso a techo, lino blanco y un rincón de lectura para ver la ciudad despertar.',
-    image: {
-      small: deluxeQueen1200,
-      aspect: 2816 / 1536,
-      large: deluxeQueen2400,
-      alt: 'Habitación Deluxe Queen con cama grande, sillón de lectura y ventanal con vista a la ciudad',
-    },
-    specs: ['32 m²', '2 huéspedes', 'Cama queen', 'Vista a la ciudad'],
-    pricePerNight: 180,
-  },
-  {
-    id: 'twin',
-    name: 'Twin Jardín',
-    description:
-      'Dos camas individuales, maderas claras y luz de jardín. Pensada para viajar en compañía.',
+      'Maderas claras, luz de jardín y todo lo necesario a mano. Pensada para quien viaja solo.',
     image: {
       small: twin1200,
-      aspect: 2752 / 1536,
       large: twin2400,
-      alt: 'Habitación Twin con dos camas individuales, plantas y ventana al jardín',
+      aspect: 2752 / 1536,
+      alt: 'Habitación con maderas claras, plantas y ventana al jardín',
     },
-    specs: ['30 m²', '2 huéspedes', '2 camas individuales', 'Vista al jardín'],
-    pricePerNight: 160,
+    features: ['Vista al jardín'],
   },
-  {
-    id: 'terrace-suite',
-    name: 'Suite Terraza',
+  doble: {
+    description:
+      'Ventanal de piso a techo, lino blanco y un rincón de lectura para ver la ciudad despertar.',
+    image: DEFAULT_ROOM_IMAGE,
+    features: ['Cama queen', 'Vista a la ciudad'],
+  },
+  suite: {
     description:
       'Living propio, dormitorio abierto y una terraza privada entre palmeras para los atardeceres.',
     image: {
       small: terraceSuite1200,
-      aspect: 2752 / 1536,
       large: terraceSuite2400,
+      aspect: 2752 / 1536,
       alt: 'Suite con living, cama king y terraza privada con palmeras',
     },
-    specs: ['58 m²', 'Hasta 3 huéspedes', 'Cama king', 'Terraza privada'],
-    pricePerNight: 320,
+    features: ['Cama king', 'Terraza privada'],
   },
-]
+}
+
+const normalizeName = (name: string) =>
+  name.trim().toLocaleLowerCase('es').normalize('NFD').replace(/[̀-ͯ]/g, '')
+
+export const toRoom = (room: PublicRoom): Room => {
+  const content = ROOM_CONTENT[normalizeName(room.name)]
+  return {
+    ...room,
+    description: content?.description,
+    image: content?.image ?? { ...DEFAULT_ROOM_IMAGE, alt: `Habitación ${room.name}` },
+    features: content?.features ?? [],
+  }
+}

@@ -7,7 +7,8 @@ import Hero from '../../components/hero/hero.tsx'
 import Spaces from '../../components/spaces/spaces.tsx'
 import { SPACES } from '../../components/spaces/spaces-data.ts'
 import Rooms from '../../components/rooms/rooms.tsx'
-import { ROOMS } from '../../components/rooms/rooms-data.ts'
+import { DEFAULT_ROOM_IMAGE } from '../../components/rooms/rooms-data.ts'
+import { usePublicRooms } from '../../components/rooms/use-public-rooms.ts'
 import Reviews from '../../components/reviews/reviews.tsx'
 import './home.css'
 
@@ -18,8 +19,7 @@ const ROOMS_HOLD = 0.4
 const ROOMS_MEDIA_WIDTH = 1.2
 const ROOMS_CUBE_FACE = 'bedroom'
 
-const getRoomZoomToMatchCube = (width: number, height: number) => {
-  const imageAspect = ROOMS[0].image.aspect
+const getRoomZoomToMatchCube = (width: number, height: number, imageAspect: number) => {
   const shownByGallery = width / Math.max(width * ROOMS_MEDIA_WIDTH, height * imageAspect)
   const shownByCube = Math.min(width / height, 1) / imageAspect / CUBE_COVER_MARGIN
   return shownByGallery / shownByCube
@@ -29,9 +29,11 @@ function Home() {
   const rootRef = useRef<HTMLDivElement>(null)
   const introRef = useRef<gsap.core.Timeline>(null)
   const activeRoomRef = useRef(0)
+  const roomsScrollRef = useRef<number | null>(null)
   const [pose] = useState(createCubePose)
   const [activeSpace, setActiveSpace] = useState(-1)
   const [activeRoom, setActiveRoom] = useState(0)
+  const rooms = usePublicRooms()
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -106,8 +108,23 @@ function Home() {
         })
         .to(pose, { x: 0, y: 0, expand: 1 }, 0)
         .to('.home__layer--back', { autoAlpha: 0 }, 0)
+    })
 
-      const steps = ROOMS.length - 1
+    void document.fonts.ready.then(() => ScrollTrigger.refresh())
+
+    return () => {
+      mm.revert()
+      ctx.revert()
+    }
+  }, [pose])
+
+  useLayoutEffect(() => {
+    const ready = rooms.status === 'ready' && rooms.rooms.length > 0
+    const slides = ready ? rooms.rooms.length : 1
+    const firstImage = ready ? rooms.rooms[0].image : DEFAULT_ROOM_IMAGE
+
+    const ctx = gsap.context(() => {
+      const steps = Math.max(slides - 1, 0)
       const gallery = document.querySelector<HTMLElement>('.rooms__gallery')!
       const track = document.querySelector<HTMLElement>('.rooms__track')!
       const roomMedia = gsap.utils.toArray<HTMLElement>('.rooms__media')
@@ -145,7 +162,7 @@ function Home() {
         .set('.home__layer--front', { autoAlpha: 0 })
         .fromTo(
           `${firstSlide} .rooms__media`,
-          { scale: () => getRoomZoomToMatchCube(gallery.offsetWidth, gallery.offsetHeight) },
+          { scale: () => getRoomZoomToMatchCube(gallery.offsetWidth, gallery.offsetHeight, firstImage.aspect) },
           { scale: 1, duration: ROOMS_CROSSFADE, ease: 'power2.inOut' },
           0,
         )
@@ -162,15 +179,18 @@ function Home() {
           .to(track, { x: () => -step * gallery.offsetWidth, duration: 1, ease: 'power2.inOut' })
           .to({}, { duration: ROOMS_HOLD })
       }
-    })
+    }, rootRef)
 
-    void document.fonts.ready.then(() => ScrollTrigger.refresh())
+    // Reverting the pin removes its spacer and the browser clamps the scroll, so put it back when rooms arrive mid-section.
+    ScrollTrigger.refresh()
+    const savedScroll = roomsScrollRef.current
+    if (savedScroll !== null && savedScroll !== window.scrollY) window.scrollTo(0, savedScroll)
 
     return () => {
-      mm.revert()
+      roomsScrollRef.current = window.scrollY
       ctx.revert()
     }
-  }, [pose])
+  }, [pose, rooms])
 
   return (
     <div ref={rootRef} className="home">
@@ -187,7 +207,7 @@ function Home() {
       <main className="home__content">
         <Hero />
         <Spaces activeIndex={activeSpace} />
-        <Rooms activeIndex={activeRoom} />
+        <Rooms state={rooms} activeIndex={activeRoom} />
         <Reviews />
       </main>
 
