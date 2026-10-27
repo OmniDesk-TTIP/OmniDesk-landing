@@ -28,36 +28,36 @@ export const DEFAULT_ROOM_IMAGE: RoomImage = {
 const ROOM_CONTENT: Record<string, RoomContent> = {
   individual: {
     description:
-      'Maderas claras, luz de jardín y todo lo necesario a mano. Pensada para quien viaja solo.',
+      'Todo lo que necesitás para descansar de verdad: cama cómoda, blancos de lino y luz de jardín para arrancar el día.',
     image: {
       small: twin1200,
       large: twin2400,
       aspect: 2752 / 1536,
       alt: 'Habitación con maderas claras, plantas y ventana al jardín',
     },
-    features: ['Vista al jardín'],
+    features: ['Vista al jardín', 'Blancos de lino'],
   },
   doble: {
     description:
-      'Ventanal de piso a techo, lino blanco y un rincón de lectura para ver la ciudad despertar.',
+      'Cama queen, rincón de lectura y un ventanal enorme con vista a la ciudad. Ideal para una escapada en pareja.',
     image: DEFAULT_ROOM_IMAGE,
-    features: ['Cama queen', 'Vista a la ciudad'],
+    features: ['Cama queen', 'Vista a la ciudad', 'Rincón de lectura'],
   },
   suite: {
     description:
-      'Living propio, dormitorio abierto y una terraza privada entre palmeras para los atardeceres.',
+      'Living propio, cama king y terraza privada para tomar algo al atardecer. Espacio de sobra para viajar en familia o darse un gusto.',
     image: {
       small: terraceSuite1200,
       large: terraceSuite2400,
       aspect: 2752 / 1536,
       alt: 'Suite con living, cama king y terraza privada con palmeras',
     },
-    features: ['Cama king', 'Terraza privada'],
+    features: ['Cama king', 'Terraza privada', 'Living'],
   },
 }
 
 const normalizeName = (name: string) =>
-  name.trim().toLocaleLowerCase('es').normalize('NFD').replace(/[̀-ͯ]/g, '')
+  name.trim().toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 
 export const toRoom = (room: PublicRoom): Room => {
   const content = ROOM_CONTENT[normalizeName(room.name)]

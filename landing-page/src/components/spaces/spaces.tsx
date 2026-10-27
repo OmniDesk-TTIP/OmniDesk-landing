@@ -9,13 +9,13 @@ function Spaces({ activeIndex }: SpacesProps) {
   return (
     <section className="spaces" aria-labelledby="spaces-title">
       <header className="spaces__header">
-        <p className="spaces__eyebrow">Los espacios</p>
+        <p className="spaces__eyebrow">Comodidades</p>
         <h2 id="spaces-title" className="spaces__title">
-          Seis espacios, <em>una sola calma</em>
+          Todo lo que necesitás, <em>sin salir del hotel</em>
         </h2>
         <p className="spaces__intro">
-          Arquitectura cálida, materiales nobles y luz natural. Recorré Alma desde la llegada hasta el
-          atardecer.
+          Desayuno incluido, piscina abierta todo el año, spa con sauna y una recepción que nunca cierra.
+          Mirá todo lo que te espera en Alma.
         </p>
       </header>
 

@@ -12,42 +12,42 @@ export const SPACES: Space[] = [
     face: 'facade',
     title: 'La llegada',
     description:
-      'Curvas de hormigón cálido, jardines que caen desde los balcones y una entrada que baja el ritmo desde el primer paso.',
-    details: ['Arquitectura orgánica', 'Jardines colgantes'],
+      'Check-in en minutos y tu habitación lista para que las vacaciones empiecen apenas cruzás la puerta.',
+    details: ['Check-in sin esperas', 'Jardines para recorrer'],
   },
   {
     face: 'lobby',
     title: 'Lobby',
     description:
-      'Piedra tallada a mano, lámparas de papel y doble altura abierta al jardín. Una bienvenida pensada para quedarse.',
-    details: ['Recepción 24 h', 'Check-in sin esperas'],
+      'Estamos a cualquier hora para lo que necesites: reservarte una mesa, recomendarte un plan o resolver un imprevisto.',
+    details: ['Recepción 24 h', 'Atención personalizada'],
   },
   {
     face: 'pool',
     title: 'Piscina & bar',
     description:
-      'Agua turquesa entre piedra natural, reposeras de teca y un bar al aire libre para recibir el atardecer.',
-    details: ['Abierta todo el año', 'Coctelería de autor'],
+      'Reposeras al sol, tragos de autor en el bar junto al agua y una piscina abierta todo el año. El plan perfecto para cualquier tarde.',
+    details: ['Abierta todo el año', 'Coctelería de autor', 'Reposeras'],
   },
   {
     face: 'restaurant',
     title: 'Restaurante',
     description:
-      'Cocina de estación bajo una pérgola de madera y enredaderas. Desayunos largos, cenas sin apuro.',
-    details: ['Producto local', 'Desayuno incluido'],
+      'Desayuno incluido y una carta de estación con producto local. Comé rico sin salir a buscar dónde.',
+    details: ['Desayuno incluido', 'Producto local', 'Cocina de estación'],
   },
   {
     face: 'spa',
     title: 'Spa',
     description:
-      'Una piscina templada bajo arcos de piedra y luz cenital, con sauna, camillas de lino y el tiempo en pausa.',
+      'Piscina climatizada, sauna y masajes para soltar el cansancio del viaje. Reservá tu turno y olvidate del reloj.',
     details: ['Piscina climatizada', 'Sauna', 'Masajes'],
   },
   {
     face: 'bedroom',
     title: 'Habitaciones',
     description:
-      'Lino natural, maderas claras y luz que entra sin pedir permiso. Cada habitación mira al verde.',
-    details: ['Vista al jardín', 'Balcón privado', 'Blancos de lino'],
+      'Camas amplias con blancos de lino, balcón privado y vista al jardín. Pensadas para que duermas como en casa, o mejor.',
+    details: ['Balcón privado', 'Blancos de lino', 'Vista al jardín'],
   },
 ]
