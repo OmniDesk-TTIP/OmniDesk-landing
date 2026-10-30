@@ -10,6 +10,7 @@ import Rooms from '../../components/rooms/rooms.tsx'
 import { ROOM_PLACEHOLDER } from '../../components/rooms/rooms-data.ts'
 import { usePublicRooms } from '../../components/rooms/use-public-rooms.ts'
 import Restaurant from '../../components/restaurant/restaurant.tsx'
+import Spa from '../../components/spa/spa.tsx'
 import Reviews from '../../components/reviews/reviews.tsx'
 import './home.css'
 
@@ -210,6 +211,7 @@ function Home() {
         <Spaces activeIndex={activeSpace} />
         <Rooms state={rooms} activeIndex={activeRoom} />
         <Restaurant />
+        <Spa />
         <Reviews />
       </main>
 
