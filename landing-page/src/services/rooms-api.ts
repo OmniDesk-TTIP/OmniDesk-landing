@@ -1,11 +1,20 @@
 import { API_URL } from './api.ts'
 
+export interface PublicRoomPhoto {
+  id: string
+  url: string
+}
+
 export interface PublicRoom {
   id: string
   name: string
   capacity: number
   pricePerNight: number
+  photos: PublicRoomPhoto[]
 }
+
+// Photo urls are relative to the backend; they are immutable, so no cache busting.
+export const getRoomPhotoUrl = (photo: PublicRoomPhoto) => `${API_URL}${photo.url}`
 
 export async function getPublicRooms(signal?: AbortSignal): Promise<PublicRoom[] | null> {
   try {
@@ -15,7 +24,8 @@ export async function getPublicRooms(signal?: AbortSignal): Promise<PublicRoom[]
       return null
     }
     const body: unknown = await response.json()
-    return Array.isArray(body) ? (body as PublicRoom[]) : null
+    if (!Array.isArray(body)) return null
+    return (body as PublicRoom[]).map((room) => ({ ...room, photos: Array.isArray(room.photos) ? room.photos : [] }))
   } catch (error) {
     if (!signal?.aborted) console.error('Habitaciones: falló /public/rooms', error)
     return null

@@ -7,7 +7,7 @@ import Hero from '../../components/hero/hero.tsx'
 import Spaces from '../../components/spaces/spaces.tsx'
 import { SPACES } from '../../components/spaces/spaces-data.ts'
 import Rooms from '../../components/rooms/rooms.tsx'
-import { DEFAULT_ROOM_IMAGE } from '../../components/rooms/rooms-data.ts'
+import { ROOM_PLACEHOLDER } from '../../components/rooms/rooms-data.ts'
 import { usePublicRooms } from '../../components/rooms/use-public-rooms.ts'
 import Restaurant from '../../components/restaurant/restaurant.tsx'
 import Reviews from '../../components/reviews/reviews.tsx'
@@ -20,7 +20,9 @@ const ROOMS_HOLD = 0.4
 const ROOMS_MEDIA_WIDTH = 1.2
 const ROOMS_CUBE_FACE = 'bedroom'
 
-const getRoomZoomToMatchCube = (width: number, height: number, imageAspect: number) => {
+// Sized for the placeholder, which is the picture on the cube's bedroom face.
+const getRoomZoomToMatchCube = (width: number, height: number) => {
+  const imageAspect = ROOM_PLACEHOLDER.aspect
   const shownByGallery = width / Math.max(width * ROOMS_MEDIA_WIDTH, height * imageAspect)
   const shownByCube = Math.min(width / height, 1) / imageAspect / CUBE_COVER_MARGIN
   return shownByGallery / shownByCube
@@ -120,9 +122,7 @@ function Home() {
   }, [pose])
 
   useLayoutEffect(() => {
-    const ready = rooms.status === 'ready' && rooms.rooms.length > 0
-    const slides = ready ? rooms.rooms.length : 1
-    const firstImage = ready ? rooms.rooms[0].image : DEFAULT_ROOM_IMAGE
+    const slides = rooms.status === 'ready' ? Math.max(rooms.rooms.length, 1) : 1
 
     const ctx = gsap.context(() => {
       const steps = Math.max(slides - 1, 0)
@@ -163,7 +163,7 @@ function Home() {
         .set('.home__layer--front', { autoAlpha: 0 })
         .fromTo(
           `${firstSlide} .rooms__media`,
-          { scale: () => getRoomZoomToMatchCube(gallery.offsetWidth, gallery.offsetHeight, firstImage.aspect) },
+          { scale: () => getRoomZoomToMatchCube(gallery.offsetWidth, gallery.offsetHeight) },
           { scale: 1, duration: ROOMS_CROSSFADE, ease: 'power2.inOut' },
           0,
         )

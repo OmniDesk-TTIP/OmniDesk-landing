@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
-import { DEFAULT_ROOM_IMAGE, type Room, type RoomImage } from './rooms-data.ts'
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { ROOM_PLACEHOLDER, type Room, type RoomPhoto } from './rooms-data.ts'
 import type { RoomsState } from './use-public-rooms.ts'
 import './rooms.css'
 
@@ -13,18 +13,53 @@ const formatCapacity = (capacity: number) => `Hasta ${capacity} ${capacity === 1
 
 const pad = (value: number) => String(value).padStart(2, '0')
 
-function RoomMedia({ image }: { image: RoomImage }) {
+type RoomPhotoImageProps = {
+  photo?: RoomPhoto
+  fallbackAlt: string
+  className: string
+  sizes: string
+}
+
+// Shows the placeholder when there is no photo or it fails to load. Key it by photo id so a new photo gets a fresh try.
+function RoomPhotoImage({ photo, fallbackAlt, className, sizes }: RoomPhotoImageProps) {
+  const [failed, setFailed] = useState(false)
+
+  if (!photo || failed) {
+    return (
+      <img
+        className={className}
+        src={ROOM_PLACEHOLDER.src}
+        srcSet={ROOM_PLACEHOLDER.srcSet}
+        sizes={sizes}
+        alt={fallbackAlt}
+        loading="lazy"
+        decoding="async"
+      />
+    )
+  }
+
+  return (
+    <img
+      className={className}
+      src={photo.src}
+      alt={photo.alt}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+    />
+  )
+}
+
+function RoomMedia({ photo, fallbackAlt }: { photo?: RoomPhoto; fallbackAlt: string }) {
   return (
     <>
       <div className="rooms__media">
-        <img
+        <RoomPhotoImage
+          key={photo?.id}
           className="rooms__image"
-          src={image.large}
-          srcSet={`${image.small} 1200w, ${image.large} 2400w`}
+          photo={photo}
+          fallbackAlt={fallbackAlt}
           sizes="120vw"
-          alt={image.alt}
-          loading="lazy"
-          decoding="async"
         />
       </div>
       <div className="rooms__shade" aria-hidden="true" />
@@ -32,10 +67,16 @@ function RoomMedia({ image }: { image: RoomImage }) {
   )
 }
 
-function RoomSlide({ room, label }: { room: Room; label: string }) {
+type RoomSlideProps = {
+  room: Room
+  label: string
+  onOpenPhotos: () => void
+}
+
+function RoomSlide({ room, label, onOpenPhotos }: RoomSlideProps) {
   return (
     <article className="rooms__slide" aria-roledescription="slide" aria-label={label}>
-      <RoomMedia image={room.image} />
+      <RoomMedia photo={room.photos[0]} fallbackAlt={`Habitación ${room.name}`} />
 
       <div className="rooms__info">
         <h3 className="rooms__name">{room.name}</h3>
@@ -52,6 +93,11 @@ function RoomSlide({ room, label }: { room: Room; label: string }) {
           <a className="rooms__cta" href="#reservar">
             Reservar
           </a>
+          {room.photos.length > 1 && (
+            <button className="rooms__photos-button" type="button" onClick={onOpenPhotos}>
+              Ver {room.photos.length} fotos
+            </button>
+          )}
         </div>
       </div>
     </article>
@@ -61,7 +107,7 @@ function RoomSlide({ room, label }: { room: Room; label: string }) {
 function RoomsNotice({ children }: { children: ReactNode }) {
   return (
     <div className="rooms__slide">
-      <RoomMedia image={DEFAULT_ROOM_IMAGE} />
+      <RoomMedia fallbackAlt="Habitación del hotel" />
       <div className="rooms__info">{children}</div>
     </div>
   )
@@ -105,12 +151,96 @@ function RoomsPlaceholder({ state }: { state: RoomsState }) {
   )
 }
 
+type PhotoViewer = { room: Room; index: number }
+
+type RoomPhotosDialogProps = {
+  viewer: PhotoViewer | null
+  onIndexChange: (index: number) => void
+  onClose: () => void
+}
+
+function RoomPhotosDialog({ viewer, onIndexChange, onClose }: RoomPhotosDialogProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (viewer && !dialog?.open) dialog?.showModal()
+  }, [viewer])
+
+  const count = viewer?.room.photos.length ?? 0
+  const step = (delta: number) => viewer && onIndexChange((viewer.index + delta + count) % count)
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDialogElement>) => {
+    if (event.key === 'ArrowLeft') step(-1)
+    if (event.key === 'ArrowRight') step(1)
+  }
+
+  return (
+    <dialog
+      ref={dialogRef}
+      className="room-photos"
+      aria-labelledby="room-photos-title"
+      onClose={onClose}
+      onKeyDown={handleKeyDown}
+      onClick={(event) => event.target === event.currentTarget && dialogRef.current?.close()}
+    >
+      {viewer && (
+        <>
+          <header className="room-photos__header">
+            <h3 id="room-photos-title" className="room-photos__title">
+              {viewer.room.name}
+            </h3>
+            <p className="room-photos__count" aria-live="polite">
+              Foto {viewer.index + 1} de {count}
+            </p>
+            <button
+              className="room-photos__close"
+              type="button"
+              aria-label="Cerrar fotos"
+              onClick={() => dialogRef.current?.close()}
+            >
+              ×
+            </button>
+          </header>
+
+          <div className="room-photos__frame">
+            <RoomPhotoImage
+              key={viewer.room.photos[viewer.index].id}
+              className="room-photos__image"
+              photo={viewer.room.photos[viewer.index]}
+              fallbackAlt={`Habitación ${viewer.room.name}`}
+              sizes="90vw"
+            />
+            <button
+              className="room-photos__nav room-photos__nav--prev"
+              type="button"
+              aria-label="Foto anterior"
+              onClick={() => step(-1)}
+            >
+              ‹
+            </button>
+            <button
+              className="room-photos__nav room-photos__nav--next"
+              type="button"
+              aria-label="Foto siguiente"
+              onClick={() => step(1)}
+            >
+              ›
+            </button>
+          </div>
+        </>
+      )}
+    </dialog>
+  )
+}
+
 type RoomsProps = {
   state: RoomsState
   activeIndex: number
 }
 
 function Rooms({ state, activeIndex }: RoomsProps) {
+  const [viewer, setViewer] = useState<PhotoViewer | null>(null)
   const rooms = state.status === 'ready' ? state.rooms : []
 
   return (
@@ -119,7 +249,12 @@ function Rooms({ state, activeIndex }: RoomsProps) {
         <div className="rooms__track">
           {rooms.length ? (
             rooms.map((room, index) => (
-              <RoomSlide key={room.id} room={room} label={`${index + 1} de ${rooms.length}: ${room.name}`} />
+              <RoomSlide
+                key={room.id}
+                room={room}
+                label={`${index + 1} de ${rooms.length}: ${room.name}`}
+                onOpenPhotos={() => setViewer({ room, index: 0 })}
+              />
             ))
           ) : (
             <RoomsPlaceholder state={state} />
@@ -142,6 +277,13 @@ function Rooms({ state, activeIndex }: RoomsProps) {
           <span className="rooms__progress-bar" />
         </div>
       </div>
+
+      {/* Outside the gallery: GSAP toggles the gallery's visibility, which the open dialog would inherit. */}
+      <RoomPhotosDialog
+        viewer={viewer}
+        onIndexChange={(index) => setViewer((current) => current && { ...current, index })}
+        onClose={() => setViewer(null)}
+      />
     </section>
   )
 }
