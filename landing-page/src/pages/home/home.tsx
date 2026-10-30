@@ -9,6 +9,7 @@ import { SPACES } from '../../components/spaces/spaces-data.ts'
 import Rooms from '../../components/rooms/rooms.tsx'
 import { DEFAULT_ROOM_IMAGE } from '../../components/rooms/rooms-data.ts'
 import { usePublicRooms } from '../../components/rooms/use-public-rooms.ts'
+import Restaurant from '../../components/restaurant/restaurant.tsx'
 import Reviews from '../../components/reviews/reviews.tsx'
 import './home.css'
 
@@ -208,6 +209,7 @@ function Home() {
         <Hero />
         <Spaces activeIndex={activeSpace} />
         <Rooms state={rooms} activeIndex={activeRoom} />
+        <Restaurant />
         <Reviews />
       </main>
 
